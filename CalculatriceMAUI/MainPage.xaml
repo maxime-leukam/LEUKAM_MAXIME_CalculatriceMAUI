@@ -1,0 +1,164 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CalculatriceMAUI.MainPage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#F2F2F7"
+             SizeChanged="OnPageSizeChanged">
+
+    <ContentPage.Resources>
+        <Style x:Key="Touche" TargetType="Button">
+            <Setter Property="FontSize" Value="24" />
+            <Setter Property="CornerRadius" Value="16" />
+            <Setter Property="BackgroundColor" Value="White" />
+            <Setter Property="TextColor" Value="#1C1C1E" />
+            <Setter Property="Margin" Value="3" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="MinimumHeightRequest" Value="0" />
+            <Setter Property="MinimumWidthRequest" Value="0" />
+        </Style>
+        <Style x:Key="ToucheOperateur" TargetType="Button" BasedOn="{StaticResource Touche}">
+            <Setter Property="BackgroundColor" Value="#DCE8FF" />
+            <Setter Property="TextColor" Value="#0A4FBF" />
+        </Style>
+        <Style x:Key="ToucheAction" TargetType="Button" BasedOn="{StaticResource Touche}">
+            <Setter Property="BackgroundColor" Value="#E5E5EA" />
+        </Style>
+        <Style x:Key="ToucheEgal" TargetType="Button" BasedOn="{StaticResource Touche}">
+            <Setter Property="BackgroundColor" Value="#0A5CE6" />
+            <Setter Property="TextColor" Value="White" />
+        </Style>
+        <Style x:Key="ToucheSci" TargetType="Button" BasedOn="{StaticResource Touche}">
+            <Setter Property="FontSize" Value="18" />
+            <Setter Property="BackgroundColor" Value="#EDE7FF" />
+            <Setter Property="TextColor" Value="#4B2DBF" />
+        </Style>
+    </ContentPage.Resources>
+
+    <!-- Layout 1 : Grid racine (affichage, panneau scientifique, clavier) -->
+    <Grid x:Name="RootGrid"
+          Padding="12"
+          RowSpacing="4"
+          ColumnSpacing="8"
+          RowDefinitions="2*,0,5*"
+          ColumnDefinitions="*">
+
+        <!-- Layout 2 : Border (carte d'affichage arrondie) -->
+        <Border x:Name="Affichage"
+                Grid.Row="0" Grid.Column="0"
+                BackgroundColor="White"
+                Stroke="Transparent"
+                StrokeShape="RoundRectangle 20"
+                Padding="16,8">
+
+            <Grid>
+                <!-- Layout 3 : HorizontalStackLayout (bouton Sci + mode DEG/RAD) -->
+                <HorizontalStackLayout HorizontalOptions="Start"
+                                       VerticalOptions="Start"
+                                       Spacing="8">
+                    <Button Text="Sci"
+                            FontSize="13"
+                            HeightRequest="32"
+                            WidthRequest="56"
+                            CornerRadius="10"
+                            Padding="0"
+                            MinimumHeightRequest="0"
+                            MinimumWidthRequest="0"
+                            BackgroundColor="#EDE7FF"
+                            TextColor="#4B2DBF"
+                            Clicked="OnToggleSci" />
+                    <Label x:Name="ModeLabel"
+                           Text="DEG"
+                           FontSize="13"
+                           TextColor="#8E8E93"
+                           VerticalOptions="Center" />
+                </HorizontalStackLayout>
+
+                <!-- Layout 4 : VerticalStackLayout (operation au-dessus du resultat) -->
+                <VerticalStackLayout VerticalOptions="End" Spacing="2">
+                    <Label x:Name="ExpressionLabel"
+                           Text=""
+                           FontSize="20"
+                           TextColor="#8E8E93"
+                           HorizontalOptions="End"
+                           LineBreakMode="HeadTruncation"
+                           MaxLines="1" />
+
+                    <!-- Layout 5 : ScrollView horizontal (grands nombres) -->
+                    <ScrollView x:Name="ResultScroll"
+                                Orientation="Horizontal"
+                                HorizontalScrollBarVisibility="Never"
+                                HorizontalOptions="End">
+                        <Label x:Name="ResultLabel"
+                               Text="0"
+                               FontSize="48"
+                               FontAttributes="Bold"
+                               TextColor="#1C1C1E"
+                               HorizontalTextAlignment="End"
+                               VerticalTextAlignment="End"
+                               MaxLines="1" />
+                    </ScrollView>
+                </VerticalStackLayout>
+            </Grid>
+        </Border>
+
+        <!-- Grid du panneau scientifique : 3 lignes x 4 colonnes -->
+        <Grid x:Name="SciPanel"
+              Grid.Row="1" Grid.Column="0"
+              IsVisible="False"
+              RowDefinitions="*,*,*"
+              ColumnDefinitions="*,*,*,*"
+              RowSpacing="0"
+              ColumnSpacing="0">
+
+            <Button Grid.Row="0" Grid.Column="0" Text="√"  CommandParameter="sqrt" Style="{StaticResource ToucheSci}" Clicked="OnFonction" />
+            <Button Grid.Row="0" Grid.Column="1" Text="x²" CommandParameter="sqr"  Style="{StaticResource ToucheSci}" Clicked="OnFonction" />
+            <Button Grid.Row="0" Grid.Column="2" Text="xʸ" CommandParameter="^"    Style="{StaticResource ToucheSci}" Clicked="OnOperator" />
+            <Button Grid.Row="0" Grid.Column="3" Text="1/x" CommandParameter="inv" Style="{StaticResource ToucheSci}" Clicked="OnFonction" />
+
+            <Button Grid.Row="1" Grid.Column="0" Text="sin" CommandParameter="sin" Style="{StaticResource ToucheSci}" Clicked="OnFonction" />
+            <Button Grid.Row="1" Grid.Column="1" Text="cos" CommandParameter="cos" Style="{StaticResource ToucheSci}" Clicked="OnFonction" />
+            <Button Grid.Row="1" Grid.Column="2" Text="tan" CommandParameter="tan" Style="{StaticResource ToucheSci}" Clicked="OnFonction" />
+            <Button Grid.Row="1" Grid.Column="3" Text="π"   CommandParameter="pi"  Style="{StaticResource ToucheSci}" Clicked="OnFonction" />
+
+            <Button Grid.Row="2" Grid.Column="0" Text="ln"  CommandParameter="ln"   Style="{StaticResource ToucheSci}" Clicked="OnFonction" />
+            <Button Grid.Row="2" Grid.Column="1" Text="log" CommandParameter="log"  Style="{StaticResource ToucheSci}" Clicked="OnFonction" />
+            <Button Grid.Row="2" Grid.Column="2" Text="n!"  CommandParameter="fact" Style="{StaticResource ToucheSci}" Clicked="OnFonction" />
+            <Button Grid.Row="2" Grid.Column="3" Text="DEG/RAD" Style="{StaticResource ToucheSci}" Clicked="OnDegRad" />
+        </Grid>
+
+        <!-- Grid du clavier : 5 lignes x 4 colonnes -->
+        <Grid x:Name="Clavier"
+              Grid.Row="2" Grid.Column="0"
+              RowDefinitions="*,*,*,*,*"
+              ColumnDefinitions="*,*,*,*"
+              RowSpacing="0"
+              ColumnSpacing="0">
+
+            <Button Grid.Row="0" Grid.Column="0" Text="C" Style="{StaticResource ToucheAction}" TextColor="#D70015" Clicked="OnClear" />
+            <Button Grid.Row="0" Grid.Column="1" Text="⌫" Style="{StaticResource ToucheAction}" Clicked="OnBackspace" />
+            <Button Grid.Row="0" Grid.Column="2" Text="%" Style="{StaticResource ToucheAction}" Clicked="OnPercent" />
+            <Button Grid.Row="0" Grid.Column="3" Text="÷" CommandParameter="/" Style="{StaticResource ToucheOperateur}" Clicked="OnOperator" />
+
+            <Button Grid.Row="1" Grid.Column="0" Text="7" Style="{StaticResource Touche}" Clicked="OnDigit" />
+            <Button Grid.Row="1" Grid.Column="1" Text="8" Style="{StaticResource Touche}" Clicked="OnDigit" />
+            <Button Grid.Row="1" Grid.Column="2" Text="9" Style="{StaticResource Touche}" Clicked="OnDigit" />
+            <Button Grid.Row="1" Grid.Column="3" Text="×" CommandParameter="*" Style="{StaticResource ToucheOperateur}" Clicked="OnOperator" />
+
+            <Button Grid.Row="2" Grid.Column="0" Text="4" Style="{StaticResource Touche}" Clicked="OnDigit" />
+            <Button Grid.Row="2" Grid.Column="1" Text="5" Style="{StaticResource Touche}" Clicked="OnDigit" />
+            <Button Grid.Row="2" Grid.Column="2" Text="6" Style="{StaticResource Touche}" Clicked="OnDigit" />
+            <Button Grid.Row="2" Grid.Column="3" Text="−" CommandParameter="-" Style="{StaticResource ToucheOperateur}" Clicked="OnOperator" />
+
+            <Button Grid.Row="3" Grid.Column="0" Text="1" Style="{StaticResource Touche}" Clicked="OnDigit" />
+            <Button Grid.Row="3" Grid.Column="1" Text="2" Style="{StaticResource Touche}" Clicked="OnDigit" />
+            <Button Grid.Row="3" Grid.Column="2" Text="3" Style="{StaticResource Touche}" Clicked="OnDigit" />
+            <Button Grid.Row="3" Grid.Column="3" Text="+" CommandParameter="+" Style="{StaticResource ToucheOperateur}" Clicked="OnOperator" />
+
+            <Button Grid.Row="4" Grid.Column="0" Text="±" Style="{StaticResource Touche}" Clicked="OnSign" />
+            <Button Grid.Row="4" Grid.Column="1" Text="0" Style="{StaticResource Touche}" Clicked="OnDigit" />
+            <Button Grid.Row="4" Grid.Column="2" Text="," Style="{StaticResource Touche}" Clicked="OnDecimal" />
+            <Button Grid.Row="4" Grid.Column="3" Text="=" Style="{StaticResource ToucheEgal}" Clicked="OnEquals" />
+        </Grid>
+    </Grid>
+</ContentPage>
